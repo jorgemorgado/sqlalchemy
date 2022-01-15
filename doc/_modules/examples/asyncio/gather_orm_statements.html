@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        
+        <title>
+            
+    
+    examples.asyncio.gather_orm_statements
+ &mdash;
+    SQLAlchemy 1.4 Documentation
+
+        </title>
+
+        
+            <!-- begin iterate through site-imported + sphinx environment css_files -->
+                <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+                <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+                <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+                <link rel="stylesheet" href="../../../_static/docs.css" type="text/css" />
+                <link rel="stylesheet" href="../../../_static/changelog.css" type="text/css" />
+                <link rel="stylesheet" href="../../../_static/sphinx_paramlinks.css" type="text/css" />
+            <!-- end iterate through site-imported + sphinx environment css_files -->
+        
+
+        
+
+    
+
+    <!-- begin layout.mako headers -->
+
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+        <link rel="copyright" title="Copyright" href="../../../copyright.html" />
+    <link rel="top" title="SQLAlchemy 1.4 Documentation" href="../../../index.html" />
+        <link rel="up" title="Module code" href="../../index.html" />
+    <!-- end layout.mako headers -->
+
+
+    </head>
+    <body>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="docs-container">
+
+
+
+
+
+<div id="docs-top-navigation-container" class="body-background">
+<div id="docs-header">
+    <div id="docs-version-header">
+        Release: <span class="version-num">1.4.29</span>
+
+
+        | Release Date: December 22, 2021
+
+    </div>
+
+    <h1><a href="../../../index.html">SQLAlchemy 1.4 Documentation</a></h1>
+
+</div>
+</div>
+
+<div id="docs-body-container">
+
+    <div id="fixed-sidebar" class="">
+
+        <div id="index-nav">
+            <form class="search" action="../../../search.html" method="get">
+              <label>
+                 Search terms:
+              <input type="text" placeholder="search..." name="q" size="12" />
+              </label>
+              <input type="submit" value="Search" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+
+            <p>
+            <a href="../../../contents.html">Contents</a> |
+            <a href="../../../genindex.html">Index</a>
+            </p>
+
+        </div>
+
+
+    </div>
+
+    
+
+    <div id="docs-body" role="main" class=" _modules-examples-asyncio-gather_orm_statements" >
+        
+<h1>Source code for examples.asyncio.gather_orm_statements</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Illustrates how to run many statements concurrently using ``asyncio.gather()``</span>
+<span class="sd">along many asyncio database connections, merging ORM results into a single</span>
+<span class="sd">``AsyncSession``.</span>
+
+<span class="sd">Note that this pattern loses all transactional safety and is also not</span>
+<span class="sd">necessarily any more performant than using a single Session, as it adds</span>
+<span class="sd">significant CPU-bound work both to maintain more database connections</span>
+<span class="sd">and sessions, as well as within the merging of results from external sessions</span>
+<span class="sd">into one.</span>
+
+<span class="sd">Python is a CPU-intensive language even in trivial cases, so it is strongly</span>
+<span class="sd">recommended that any workarounds for &quot;speed&quot; such as the one below are</span>
+<span class="sd">carefully vetted to show that they do in fact improve performance vs a</span>
+<span class="sd">traditional approach.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Integer</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">AsyncSession</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.asyncio</span> <span class="kn">import</span> <span class="n">create_async_engine</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.future</span> <span class="kn">import</span> <span class="n">select</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">merge_frozen_result</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
+
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">A</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">__tablename__</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">run_out_of_band</span><span class="p">(</span>
+    <span class="n">sessionmaker</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">statement</span><span class="p">,</span> <span class="n">merge_results</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;run an ORM statement in a distinct session, merging the result</span>
+<span class="sd">    back into the given session.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">sessionmaker</span><span class="p">()</span> <span class="k">as</span> <span class="n">oob_session</span><span class="p">:</span>
+
+        <span class="c1"># use AUTOCOMMIT for each connection to reduce transaction</span>
+        <span class="c1"># overhead / contention</span>
+        <span class="k">await</span> <span class="n">oob_session</span><span class="o">.</span><span class="n">connection</span><span class="p">(</span>
+            <span class="n">execution_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;isolation_level&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTOCOMMIT&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># pre 1.4.24</span>
+        <span class="c1"># await oob_session.run_sync(</span>
+        <span class="c1">#     lambda sync_session: sync_session.connection(</span>
+        <span class="c1">#         execution_options={&quot;isolation_level&quot;: &quot;AUTOCOMMIT&quot;}</span>
+        <span class="c1">#     )</span>
+        <span class="c1"># )</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">oob_session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">statement</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">merge_results</span><span class="p">:</span>
+            <span class="c1"># merge_results means the ORM objects from the result</span>
+            <span class="c1"># will be merged back into the original session.</span>
+            <span class="c1"># load=False means we can use the objects directly without</span>
+            <span class="c1"># re-selecting them.  however this merge operation is still</span>
+            <span class="c1"># more expensive CPU-wise than a regular ORM load because the</span>
+            <span class="c1"># objects are copied into new instances</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+                    <span class="n">merge_frozen_result</span><span class="p">,</span>
+                    <span class="n">statement</span><span class="p">,</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">freeze</span><span class="p">(),</span>
+                    <span class="n">load</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">result</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">async_main</span><span class="p">():</span>
+
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">create_async_engine</span><span class="p">(</span>
+        <span class="s2">&quot;postgresql+asyncpg://scott:tiger@localhost/test&quot;</span><span class="p">,</span>
+        <span class="n">echo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">drop_all</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">)</span>
+
+    <span class="n">async_session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span>
+        <span class="n">engine</span><span class="p">,</span> <span class="n">expire_on_commit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="n">AsyncSession</span>
+    <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">async_session</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">add_all</span><span class="p">([</span><span class="n">A</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="s2">&quot;a_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)])</span>
+
+    <span class="n">statements</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">select</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="s2">&quot;a_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+        <span class="o">*</span><span class="p">(</span>
+            <span class="n">run_out_of_band</span><span class="p">(</span><span class="n">async_session</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">statement</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">statement</span> <span class="ow">in</span> <span class="n">statements</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;results: </span><span class="si">{</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">async_main</span><span class="p">())</span></pre></div>
+    </div>
+
+</div>
+
+<div id="docs-bottom-navigation" class="docs-navigation-links">
+
+    <div id="docs-copyright">
+        &copy; <a href="../../../copyright.html">Copyright</a> 2007-2021, the SQLAlchemy authors and contributors.
+
+
+    <p><b>flambé!</b> the dragon and <b><i>The Alchemist</i></b> image designs created and generously donated by <a href="https://github.com/vmalloc">Rotem Yaari</a>.</p>
+
+        Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 4.3.2.
+    </div>
+</div>
+
+</div>
+
+
+
+        
+        
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../../../',
+          VERSION:     '1.4.29',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+
+    <!-- begin iterate through sphinx environment script_files -->
+        <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <!-- end iterate through sphinx environment script_files -->
+
+    <script type="text/javascript" src="../../../_static/detectmobile.js"></script>
+    <script type="text/javascript" src="../../../_static/init.js"></script>
+
+
+    </body>
+</html>
+
+

@@ -1,0 +1,664 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+        <title>
+            
+    
+    SQL Expression Language Foundational Constructs
+ &mdash;
+    SQLAlchemy 1.4 Documentation
+
+        </title>
+
+        
+            <!-- begin iterate through site-imported + sphinx environment css_files -->
+                <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+                <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+                <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+                <link rel="stylesheet" href="../_static/docs.css" type="text/css" />
+                <link rel="stylesheet" href="../_static/changelog.css" type="text/css" />
+                <link rel="stylesheet" href="../_static/sphinx_paramlinks.css" type="text/css" />
+            <!-- end iterate through site-imported + sphinx environment css_files -->
+        
+
+        
+
+    
+
+    <!-- begin layout.mako headers -->
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+        <link rel="copyright" title="Copyright" href="../copyright.html" />
+    <link rel="top" title="SQLAlchemy 1.4 Documentation" href="../index.html" />
+        <link rel="up" title="SQL Statements and Expressions API" href="expression_api.html" />
+        <link rel="next" title="Column Elements and Expressions" href="sqlelement.html" />
+        <link rel="prev" title="SQL Statements and Expressions API" href="expression_api.html" />
+    <!-- end layout.mako headers -->
+
+
+    </head>
+    <body>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="docs-container">
+
+
+
+
+
+<div id="docs-top-navigation-container" class="body-background">
+<div id="docs-header">
+    <div id="docs-version-header">
+        Release: <span class="version-num">1.4.29</span>
+
+
+        | Release Date: December 22, 2021
+
+    </div>
+
+    <h1><a href="../index.html">SQLAlchemy 1.4 Documentation</a></h1>
+
+</div>
+</div>
+
+<div id="docs-body-container">
+
+    <div id="fixed-sidebar" class="withsidebar">
+
+
+        <div id="docs-sidebar-popout">
+            <h3><a href="../index.html">SQLAlchemy 1.4 Documentation</a></h3>
+            <p id="sidebar-topnav">
+                <a href="../contents.html">Contents</a> |
+                <a href="../genindex.html">Index</a>
+            </p>
+
+            <div id="sidebar-search">
+                <form class="search" action="../search.html" method="get">
+                  <label>
+                  Search terms:
+                  <input type="text" placeholder="search..." name="q" size="12" />
+                  </label>
+                  <input type="hidden" name="check_keywords" value="yes" />
+                  <input type="hidden" name="area" value="default" />
+                </form>
+            </div>
+
+        </div>
+
+        <div id="docs-sidebar">
+
+        <div id="sidebar-banner">
+            
+        </div>
+
+        <div id="docs-sidebar-inner">
+
+        
+        <h3>
+            <a href="index.html" title="SQLAlchemy Core">SQLAlchemy Core</a>
+        </h3>
+
+        <ul>
+<li><span class="link-container"><a class="reference external" href="tutorial.html">SQL Expression Language Tutorial (1.x API)</a></span></li>
+<li><span class="link-container"><a class="reference external" href="expression_api.html">SQL Statements and Expressions API</a></span><ul>
+<li class="selected"><span class="link-container"><strong>SQL Expression Language Foundational Constructs</strong><a class="paramlink headerlink reference internal" href="#">¶</a></span></li>
+<li><span class="link-container"><a class="reference external" href="sqlelement.html">Column Elements and Expressions</a></span></li>
+<li><span class="link-container"><a class="reference external" href="operators.html">Operator Reference</a></span></li>
+<li><span class="link-container"><a class="reference external" href="selectable.html">Selectables, Tables, FROM objects</a></span></li>
+<li><span class="link-container"><a class="reference external" href="dml.html">Insert, Updates, Deletes</a></span></li>
+<li><span class="link-container"><a class="reference external" href="functions.html">SQL and Generic Functions</a></span></li>
+<li><span class="link-container"><a class="reference external" href="compiler.html">Custom SQL Constructs and Compilation Extension</a></span></li>
+<li><span class="link-container"><a class="reference external" href="serializer.html">Expression Serializer Extension</a></span></li>
+<li><span class="link-container"><a class="reference external" href="visitors.html">Visitor and Traversal Utilities</a></span></li>
+</ul>
+</li>
+<li><span class="link-container"><a class="reference external" href="schema.html">Schema Definition Language</a></span></li>
+<li><span class="link-container"><a class="reference external" href="types.html">Column and Data Types</a></span></li>
+<li><span class="link-container"><a class="reference external" href="engines_connections.html">Engine and Connection Use</a></span></li>
+<li><span class="link-container"><a class="reference external" href="api_basics.html">Core API Basics</a></span></li>
+<li><span class="link-container"><a class="reference external" href="future.html">SQLAlchemy 2.0 Future (Core)</a></span></li>
+</ul>
+
+
+
+        </div>
+
+        </div>
+
+    </div>
+
+    
+
+    <div id="docs-body" role="main" class="withsidebar core-foundation" >
+        
+<section id="sql-expression-language-foundational-constructs">
+<span id="core-foundation-toplevel"></span><h1>SQL Expression Language Foundational Constructs<a class="headerlink" href="#sql-expression-language-foundational-constructs" title="Permalink to this headline">¶</a></h1>
+<p>Base classes and mixins that are used to compose SQL Expression Language
+elements.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head">Object Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="nowrap"><p><a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey"><span class="sig-name descname">CacheKey</span></a></p></td>
+<td><p>The key used to identify a SQL statement construct in the
+SQL compilation cache.</p></td>
+</tr>
+<tr class="row-odd"><td class="nowrap"><p><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><span class="sig-name descname">ClauseElement</span></a></p></td>
+<td><p>Base class for elements of a programmatically constructed SQL
+expression.</p></td>
+</tr>
+<tr class="row-even"><td class="nowrap"><p><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs"><span class="sig-name descname">DialectKWArgs</span></a></p></td>
+<td><p>Establish the ability for a class to have dialect-specific arguments
+with defaults and constructor validation.</p></td>
+</tr>
+<tr class="row-odd"><td class="nowrap"><p><a class="reference internal" href="#sqlalchemy.sql.traversals.HasCacheKey"><span class="sig-name descname">HasCacheKey</span></a></p></td>
+<td><p>Mixin for objects which can produce a cache key.</p></td>
+</tr>
+<tr class="row-even"><td class="nowrap"><p><a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement"><span class="sig-name descname">LambdaElement</span></a></p></td>
+<td><p>A SQL construct where the state is stored as an un-invoked lambda.</p></td>
+</tr>
+<tr class="row-odd"><td class="nowrap"><p><a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement"><span class="sig-name descname">StatementLambdaElement</span></a></p></td>
+<td><p>Represent a composable SQL statement as a <a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement" title="sqlalchemy.sql.expression.LambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">LambdaElement</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.CacheKey">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sqlalchemy.sql.expression.</span></span><span class="sig-name descname"><span class="pre">CacheKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bindparams</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.CacheKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>The key used to identify a SQL statement construct in the
+SQL compilation cache.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="connections.html#sql-caching"><span class="std std-ref">SQL Compilation Caching</span></a></p>
+</div>
+<div class="class-bases docutils container">
+<p><strong>Class signature</strong></p>
+<p>class <a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey" title="sqlalchemy.sql.expression.CacheKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.CacheKey</span></code></a> (<a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey" title="sqlalchemy.sql.traversals.CacheKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.traversals.CacheKey</span></code></a>)</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.CacheKey.to_offline_string">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.CacheKey.</span></code></a><span class="sig-name descname"><span class="pre">to_offline_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statement_cache</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.CacheKey.to_offline_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an “offline string” form of this <a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey" title="sqlalchemy.sql.expression.CacheKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">CacheKey</span></code></a></p>
+<p>The “offline string” is basically the string SQL for the
+statement plus a repr of the bound parameter values in series.
+Whereas the <a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey" title="sqlalchemy.sql.expression.CacheKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">CacheKey</span></code></a> object is dependent on in-memory
+identities in order to work as a cache key, the “offline” version
+is suitable for a cache that will work for other processes as well.</p>
+<p>The given <code class="docutils literal notranslate"><span class="pre">statement_cache</span></code> is a dictionary-like object where the
+string form of the statement itself will be cached.  This dictionary
+should be in a longer lived scope in order to reduce the time spent
+stringifying statements.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sqlalchemy.sql.expression.</span></span><span class="sig-name descname"><span class="pre">ClauseElement</span></span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for elements of a programmatically constructed SQL
+expression.</p>
+<div class="class-bases docutils container">
+<p><strong>Class signature</strong></p>
+<p>class <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement</span></code></a> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.roles.SQLRole</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.annotation.SupportsWrappingAnnotations</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.traversals.MemoizedHasCacheKey</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.traversals.HasCopyInternals</span></code>, <a class="reference internal" href="visitors.html#sqlalchemy.sql.visitors.Traversible" title="sqlalchemy.sql.visitors.Traversible"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.visitors.Traversible</span></code></a>)</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.compare">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare this <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClauseElement</span></code></a> to
+the given <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClauseElement</span></code></a>.</p>
+<p>Subclasses should override the default behavior, which is a
+straight identity comparison.</p>
+<p>**kw are arguments consumed by subclass <code class="docutils literal notranslate"><span class="pre">compare()</span></code> methods and
+may be used to modify the criteria for comparison
+(see <a class="reference internal" href="sqlelement.html#sqlalchemy.sql.expression.ColumnElement" title="sqlalchemy.sql.expression.ColumnElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnElement</span></code></a>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.compile">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dialect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile this SQL expression.</p>
+<p>The return value is a <a class="reference internal" href="internals.html#sqlalchemy.engine.Compiled" title="sqlalchemy.engine.Compiled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Compiled</span></code></a> object.
+Calling <code class="docutils literal notranslate"><span class="pre">str()</span></code> or <code class="docutils literal notranslate"><span class="pre">unicode()</span></code> on the returned value will yield a
+string representation of the result. The
+<a class="reference internal" href="internals.html#sqlalchemy.engine.Compiled" title="sqlalchemy.engine.Compiled"><code class="xref py py-class docutils literal notranslate"><span class="pre">Compiled</span></code></a> object also can return a
+dictionary of bind parameter names and values
+using the <code class="docutils literal notranslate"><span class="pre">params</span></code> accessor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="sqlalchemy.sql.expression.ClauseElement.compile.params.bind"></span><strong>bind</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.expression.ClauseElement.compile.params.bind">¶</a> – An <code class="docutils literal notranslate"><span class="pre">Engine</span></code> or <code class="docutils literal notranslate"><span class="pre">Connection</span></code> from which a
+<code class="docutils literal notranslate"><span class="pre">Compiled</span></code> will be acquired. This argument takes precedence over
+this <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClauseElement</span></code></a>’s bound engine, if any.</p></li>
+<li><p><span class="target" id="sqlalchemy.sql.expression.ClauseElement.compile.params.column_keys"></span><strong>column_keys</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.expression.ClauseElement.compile.params.column_keys">¶</a> – Used for INSERT and UPDATE statements, a list of
+column names which should be present in the VALUES clause of the
+compiled statement. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all columns from the target table
+object are rendered.</p></li>
+<li><p><span class="target" id="sqlalchemy.sql.expression.ClauseElement.compile.params.dialect"></span><strong>dialect</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.expression.ClauseElement.compile.params.dialect">¶</a> – A <code class="docutils literal notranslate"><span class="pre">Dialect</span></code> instance from which a <code class="docutils literal notranslate"><span class="pre">Compiled</span></code>
+will be acquired. This argument takes precedence over the <cite>bind</cite>
+argument as well as this <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClauseElement</span></code></a>
+‘s bound engine,
+if any.</p></li>
+<li><p><span class="target" id="sqlalchemy.sql.expression.ClauseElement.compile.params.compile_kwargs"></span><strong>compile_kwargs</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.expression.ClauseElement.compile.params.compile_kwargs">¶</a> – <p>optional dictionary of additional parameters
+that will be passed through to the compiler within all “visit”
+methods.  This allows any custom flag to be passed through to
+a custom compilation construct, for example.  It is also used
+for the case of passing the <code class="docutils literal notranslate"><span class="pre">literal_binds</span></code> flag through:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">select</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">table</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="n">column</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">compile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;literal_binds&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}))</span></pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../faq/sqlexpressions.html#faq-sql-expression-string"><span class="std std-ref">How do I render SQL expressions as strings, possibly with bound parameters inlined?</span></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.get_children">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><span class="sig-name descname"><span class="pre">get_children</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">omit_attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.get_children" title="Permalink to this definition">¶</a></dt>
+<dd><div class="inherited-member docutils container">
+<p><em>inherited from the</em> <a class="reference internal" href="visitors.html#sqlalchemy.sql.visitors.Traversible.get_children" title="sqlalchemy.sql.visitors.Traversible.get_children"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Traversible.get_children()</span></code></a> <em>method of</em> <a class="reference internal" href="visitors.html#sqlalchemy.sql.visitors.Traversible" title="sqlalchemy.sql.visitors.Traversible"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traversible</span></code></a></p>
+</div>
+<p>Return immediate child <a class="reference internal" href="visitors.html#sqlalchemy.sql.visitors.Traversible" title="sqlalchemy.sql.visitors.Traversible"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traversible</span></code></a>
+elements of this <a class="reference internal" href="visitors.html#sqlalchemy.sql.visitors.Traversible" title="sqlalchemy.sql.visitors.Traversible"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traversible</span></code></a>.</p>
+<p>This is used for visit traversal.</p>
+<p>**kw may contain flags that change the collection that is
+returned, for example to return a subset of items in order to
+cut down on larger traversals, or to return child items from a
+different context (such as schema-level collections instead of
+clause-level).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.memoized_attribute">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">memoized_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fget</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.memoized_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>A read-only &#64;property that is only evaluated once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.memoized_instancemethod">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">memoized_instancemethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.memoized_instancemethod" title="Permalink to this definition">¶</a></dt>
+<dd><div class="inherited-member docutils container">
+<p><em>inherited from the</em> <code class="xref py py-meth docutils literal notranslate"><span class="pre">HasMemoized.memoized_instancemethod()</span></code> <em>method of</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">HasMemoized</span></code></p>
+</div>
+<p>Decorate a method memoize its return value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.params">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><span class="sig-name descname"><span class="pre">params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">optionaldict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy with <a class="reference internal" href="sqlelement.html#sqlalchemy.sql.expression.bindparam" title="sqlalchemy.sql.expression.bindparam"><code class="xref py py-func docutils literal notranslate"><span class="pre">bindparam()</span></code></a> elements
+replaced.</p>
+<p>Returns a copy of this ClauseElement with
+<a class="reference internal" href="sqlelement.html#sqlalchemy.sql.expression.bindparam" title="sqlalchemy.sql.expression.bindparam"><code class="xref py py-func docutils literal notranslate"><span class="pre">bindparam()</span></code></a>
+elements replaced with values taken from the given dictionary:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clause</span> <span class="o">=</span> <span class="n">column</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">bindparam</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">clause</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+<span class="go">{&#39;foo&#39;:None}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">clause</span><span class="o">.</span><span class="n">params</span><span class="p">({</span><span class="s1">&#39;foo&#39;</span><span class="p">:</span><span class="mi">7</span><span class="p">})</span><span class="o">.</span><span class="n">compile</span><span class="p">()</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+<span class="go">{&#39;foo&#39;:7}</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.self_group">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><span class="sig-name descname"><span class="pre">self_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">against</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.self_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a ‘grouping’ to this <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClauseElement</span></code></a>.</p>
+<p>This method is overridden by subclasses to return a “grouping”
+construct, i.e. parenthesis.   In particular it’s used by “binary”
+expressions to provide a grouping around themselves when placed into a
+larger expression, as well as by <a class="reference internal" href="selectable.html#sqlalchemy.sql.expression.select" title="sqlalchemy.sql.expression.select"><code class="xref py py-func docutils literal notranslate"><span class="pre">select()</span></code></a>
+constructs when placed into the FROM clause of another
+<a class="reference internal" href="selectable.html#sqlalchemy.sql.expression.select" title="sqlalchemy.sql.expression.select"><code class="xref py py-func docutils literal notranslate"><span class="pre">select()</span></code></a>.  (Note that subqueries should be
+normally created using the <a class="reference internal" href="selectable.html#sqlalchemy.sql.expression.Select.alias" title="sqlalchemy.sql.expression.Select.alias"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Select.alias()</span></code></a> method,
+as many
+platforms require nested SELECT statements to be named).</p>
+<p>As expressions are composed together, the application of
+<a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement.self_group" title="sqlalchemy.sql.expression.ClauseElement.self_group"><code class="xref py py-meth docutils literal notranslate"><span class="pre">self_group()</span></code></a> is automatic - end-user code should never
+need to use this method directly.  Note that SQLAlchemy’s
+clause constructs take operator precedence into account -
+so parenthesis might not be needed, for example, in
+an expression like <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">OR</span> <span class="pre">(y</span> <span class="pre">AND</span> <span class="pre">z)</span></code> - AND takes precedence
+over OR.</p>
+<p>The base <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement.self_group" title="sqlalchemy.sql.expression.ClauseElement.self_group"><code class="xref py py-meth docutils literal notranslate"><span class="pre">self_group()</span></code></a> method of
+<a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ClauseElement</span></code></a>
+just returns self.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.ClauseElement.unique_params">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement.</span></code></a><span class="sig-name descname"><span class="pre">unique_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">optionaldict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.ClauseElement.unique_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy with <a class="reference internal" href="sqlelement.html#sqlalchemy.sql.expression.bindparam" title="sqlalchemy.sql.expression.bindparam"><code class="xref py py-func docutils literal notranslate"><span class="pre">bindparam()</span></code></a> elements
+replaced.</p>
+<p>Same functionality as <a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement.params" title="sqlalchemy.sql.expression.ClauseElement.params"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ClauseElement.params()</span></code></a>,
+except adds <cite>unique=True</cite>
+to affected bind parameters so that multiple statements can be
+used.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.base.DialectKWArgs">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sqlalchemy.sql.base.</span></span><span class="sig-name descname"><span class="pre">DialectKWArgs</span></span><a class="headerlink" href="#sqlalchemy.sql.base.DialectKWArgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Establish the ability for a class to have dialect-specific arguments
+with defaults and constructor validation.</p>
+<p>The <a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs" title="sqlalchemy.sql.base.DialectKWArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">DialectKWArgs</span></code></a> interacts with the
+<a class="reference internal" href="internals.html#sqlalchemy.engine.default.DefaultDialect.construct_arguments" title="sqlalchemy.engine.default.DefaultDialect.construct_arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DefaultDialect.construct_arguments</span></code></a> present on a dialect.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="internals.html#sqlalchemy.engine.default.DefaultDialect.construct_arguments" title="sqlalchemy.engine.default.DefaultDialect.construct_arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DefaultDialect.construct_arguments</span></code></a></p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.base.DialectKWArgs.argument_for">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.base.DialectKWArgs.</span></code></a><em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">argument_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dialect_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argument_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.base.DialectKWArgs.argument_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new kind of dialect-specific keyword argument for this class.</p>
+<p>E.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Index</span><span class="o">.</span><span class="n">argument_for</span><span class="p">(</span><span class="s2">&quot;mydialect&quot;</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">some_index</span> <span class="o">=</span> <span class="n">Index</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">mydialect_length</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></pre></div>
+</div>
+<p>The <a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.argument_for" title="sqlalchemy.sql.base.DialectKWArgs.argument_for"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DialectKWArgs.argument_for()</span></code></a> method is a per-argument
+way adding extra arguments to the
+<a class="reference internal" href="internals.html#sqlalchemy.engine.default.DefaultDialect.construct_arguments" title="sqlalchemy.engine.default.DefaultDialect.construct_arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DefaultDialect.construct_arguments</span></code></a> dictionary. This
+dictionary provides a list of argument names accepted by various
+schema-level constructs on behalf of a dialect.</p>
+<p>New dialects should typically specify this dictionary all at once as a
+data member of the dialect class.  The use case for ad-hoc addition of
+argument names is typically for end-user code that is also using
+a custom compilation scheme which consumes the additional arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="sqlalchemy.sql.base.DialectKWArgs.argument_for.params.dialect_name"></span><strong>dialect_name</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.argument_for.params.dialect_name">¶</a> – name of a dialect.  The dialect must be
+locatable, else a <a class="reference internal" href="exceptions.html#sqlalchemy.exc.NoSuchModuleError" title="sqlalchemy.exc.NoSuchModuleError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NoSuchModuleError</span></code></a> is raised.   The
+dialect must also include an existing
+<a class="reference internal" href="internals.html#sqlalchemy.engine.default.DefaultDialect.construct_arguments" title="sqlalchemy.engine.default.DefaultDialect.construct_arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DefaultDialect.construct_arguments</span></code></a> collection, indicating
+that it participates in the keyword-argument validation and default
+system, else <a class="reference internal" href="exceptions.html#sqlalchemy.exc.ArgumentError" title="sqlalchemy.exc.ArgumentError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgumentError</span></code></a> is raised.  If the dialect does
+not include this collection, then any keyword argument can be
+specified on behalf of this dialect already.  All dialects packaged
+within SQLAlchemy include this collection, however for third party
+dialects, support may vary.</p></li>
+<li><p><span class="target" id="sqlalchemy.sql.base.DialectKWArgs.argument_for.params.argument_name"></span><strong>argument_name</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.argument_for.params.argument_name">¶</a> – name of the parameter.</p></li>
+<li><p><span class="target" id="sqlalchemy.sql.base.DialectKWArgs.argument_for.params.default"></span><strong>default</strong><a class="paramlink headerlink reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.argument_for.params.default">¶</a> – default value of the parameter.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.4.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs">
+<em class="property"><span class="pre">attribute</span> </em><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.base.DialectKWArgs.</span></code></a><span class="sig-name descname"><span class="pre">dialect_kwargs</span></span><a class="headerlink" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of keyword arguments specified as dialect-specific
+options to this construct.</p>
+<p>The arguments are present here in their original <code class="docutils literal notranslate"><span class="pre">&lt;dialect&gt;_&lt;kwarg&gt;</span></code>
+format.  Only arguments that were actually passed are included;
+unlike the <a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_options" title="sqlalchemy.sql.base.DialectKWArgs.dialect_options"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DialectKWArgs.dialect_options</span></code></a> collection, which
+contains all options known by this dialect including defaults.</p>
+<p>The collection is also writable; keys are accepted of the
+form <code class="docutils literal notranslate"><span class="pre">&lt;dialect&gt;_&lt;kwarg&gt;</span></code> where the value will be assembled
+into the list of options.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.2.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.9.4: </span>The <a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs" title="sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DialectKWArgs.dialect_kwargs</span></code></a>
+collection is now writable.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_options" title="sqlalchemy.sql.base.DialectKWArgs.dialect_options"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DialectKWArgs.dialect_options</span></code></a> - nested dictionary form</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sqlalchemy.sql.base.DialectKWArgs.dialect_options">
+<em class="property"><span class="pre">attribute</span> </em><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.base.DialectKWArgs.</span></code></a><span class="sig-name descname"><span class="pre">dialect_options</span></span><a class="headerlink" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of keyword arguments specified as dialect-specific
+options to this construct.</p>
+<p>This is a two-level nested registry, keyed to <code class="docutils literal notranslate"><span class="pre">&lt;dialect_name&gt;</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&lt;argument_name&gt;</span></code>.  For example, the <code class="docutils literal notranslate"><span class="pre">postgresql_where</span></code>
+argument would be locatable as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">arg</span> <span class="o">=</span> <span class="n">my_object</span><span class="o">.</span><span class="n">dialect_options</span><span class="p">[</span><span class="s1">&#39;postgresql&#39;</span><span class="p">][</span><span class="s1">&#39;where&#39;</span><span class="p">]</span></pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.2.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs" title="sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DialectKWArgs.dialect_kwargs</span></code></a> - flat dictionary form</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sqlalchemy.sql.base.DialectKWArgs.kwargs">
+<em class="property"><span class="pre">attribute</span> </em><a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.base.DialectKWArgs.</span></code></a><span class="sig-name descname"><span class="pre">kwargs</span></span><a class="headerlink" href="#sqlalchemy.sql.base.DialectKWArgs.kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>A synonym for <a class="reference internal" href="#sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs" title="sqlalchemy.sql.base.DialectKWArgs.dialect_kwargs"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DialectKWArgs.dialect_kwargs</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.traversals.HasCacheKey">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sqlalchemy.sql.traversals.</span></span><span class="sig-name descname"><span class="pre">HasCacheKey</span></span><a class="headerlink" href="#sqlalchemy.sql.traversals.HasCacheKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixin for objects which can produce a cache key.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sqlalchemy.sql.expression.CacheKey" title="sqlalchemy.sql.traversals.CacheKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">CacheKey</span></code></a></p>
+<p><a class="reference internal" href="connections.html#sql-caching"><span class="std std-ref">SQL Compilation Caching</span></a></p>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sqlalchemy.sql.traversals.HasCacheKey.inherit_cache">
+<em class="property"><span class="pre">attribute</span> </em><a class="reference internal" href="#sqlalchemy.sql.traversals.HasCacheKey"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.traversals.HasCacheKey.</span></code></a><span class="sig-name descname"><span class="pre">inherit_cache</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sqlalchemy.sql.traversals.HasCacheKey.inherit_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicate if this <a class="reference internal" href="#sqlalchemy.sql.traversals.HasCacheKey" title="sqlalchemy.sql.traversals.HasCacheKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">HasCacheKey</span></code></a> instance should make use of the
+cache key generation scheme used by its immediate superclass.</p>
+<p>The attribute defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>, which indicates that a construct has
+not yet taken into account whether or not its appropriate for it to
+participate in caching; this is functionally equivalent to setting the
+value to <code class="docutils literal notranslate"><span class="pre">False</span></code>, except that a warning is also emitted.</p>
+<p>This flag can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> on a particular class, if the SQL that
+corresponds to the object does not change based on attributes which
+are local to this class, and not its superclass.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="compiler.html#compilerext-caching"><span class="std std-ref">Enabling Caching Support for Custom Constructs</span></a> - General guideslines for setting the
+<a class="reference internal" href="#sqlalchemy.sql.traversals.HasCacheKey.inherit_cache" title="sqlalchemy.sql.traversals.HasCacheKey.inherit_cache"><code class="xref py py-attr docutils literal notranslate"><span class="pre">HasCacheKey.inherit_cache</span></code></a> attribute for third-party or user
+defined SQL constructs.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.LambdaElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sqlalchemy.sql.expression.</span></span><span class="sig-name descname"><span class="pre">LambdaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts=&lt;class</span> <span class="pre">'sqlalchemy.sql.lambdas.LambdaOptions'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_propagate_attrs=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.LambdaElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>A SQL construct where the state is stored as an un-invoked lambda.</p>
+<p>The <a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement" title="sqlalchemy.sql.expression.LambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">LambdaElement</span></code></a> is produced transparently whenever
+passing lambda expressions into SQL constructs, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stmt</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">col</span> <span class="o">==</span> <span class="n">parameter</span><span class="p">)</span></pre></div>
+</div>
+<p>The <a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement" title="sqlalchemy.sql.expression.LambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">LambdaElement</span></code></a> is the base of the
+<a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement" title="sqlalchemy.sql.expression.StatementLambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatementLambdaElement</span></code></a> which represents a full statement
+within a lambda.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.4.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="connections.html#engine-lambda-caching"><span class="std std-ref">Using Lambdas to add significant speed gains to statement production</span></a></p>
+</div>
+<div class="class-bases docutils container">
+<p><strong>Class signature</strong></p>
+<p>class <a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement" title="sqlalchemy.sql.expression.LambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.LambdaElement</span></code></a> (<a class="reference internal" href="#sqlalchemy.sql.expression.ClauseElement" title="sqlalchemy.sql.expression.ClauseElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.ClauseElement</span></code></a>)</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.StatementLambdaElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sqlalchemy.sql.expression.</span></span><span class="sig-name descname"><span class="pre">StatementLambdaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts=&lt;class</span> <span class="pre">'sqlalchemy.sql.lambdas.LambdaOptions'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_propagate_attrs=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.StatementLambdaElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent a composable SQL statement as a <a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement" title="sqlalchemy.sql.expression.LambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">LambdaElement</span></code></a>.</p>
+<p>The <a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement" title="sqlalchemy.sql.expression.StatementLambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatementLambdaElement</span></code></a> is constructed using the
+<a class="reference internal" href="sqlelement.html#sqlalchemy.sql.expression.lambda_stmt" title="sqlalchemy.sql.expression.lambda_stmt"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda_stmt()</span></code></a> function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">lambda_stmt</span>
+
+<span class="n">stmt</span> <span class="o">=</span> <span class="n">lambda_stmt</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="p">))</span></pre></div>
+</div>
+<p>Once constructed, additional criteria can be built onto the statement
+by adding subsequent lambdas, which accept the existing statement
+object as a single parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">stmt</span> <span class="o">+=</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">col</span> <span class="o">==</span> <span class="n">parameter</span><span class="p">)</span></pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.4.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="connections.html#engine-lambda-caching"><span class="std std-ref">Using Lambdas to add significant speed gains to statement production</span></a></p>
+</div>
+<div class="class-bases docutils container">
+<p><strong>Class signature</strong></p>
+<p>class <a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement" title="sqlalchemy.sql.expression.StatementLambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.StatementLambdaElement</span></code></a> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.roles.AllowsLambdaRole</span></code>, <a class="reference internal" href="#sqlalchemy.sql.expression.LambdaElement" title="sqlalchemy.sql.lambdas.LambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.sql.lambdas.LambdaElement</span></code></a>)</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.StatementLambdaElement.add_criteria">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.StatementLambdaElement.</span></code></a><span class="sig-name descname"><span class="pre">add_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_tracking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_on</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_closure_variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_bound_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.StatementLambdaElement.add_criteria" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new criteria to this <a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement" title="sqlalchemy.sql.expression.StatementLambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatementLambdaElement</span></code></a>.</p>
+<p>E.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_stmt</span><span class="p">(</span><span class="n">parameter</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">stmt</span> <span class="o">=</span> <span class="n">lambda_stmt</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="k">lambda</span><span class="p">:</span> <span class="n">select</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">add_criteria</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="k">lambda</span><span class="p">:</span> <span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">parameter</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">stmt</span></pre></div>
+</div>
+<p>The <a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement.add_criteria" title="sqlalchemy.sql.expression.StatementLambdaElement.add_criteria"><code class="xref py py-meth docutils literal notranslate"><span class="pre">StatementLambdaElement.add_criteria()</span></code></a> method is
+equivalent to using the Python addition operator to add a new
+lambda, except that additional arguments may be added including
+<code class="docutils literal notranslate"><span class="pre">track_closure_values</span></code> and <code class="docutils literal notranslate"><span class="pre">track_on</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_stmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">foo</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">stmt</span> <span class="o">=</span> <span class="n">lambda_stmt</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="k">lambda</span><span class="p">:</span> <span class="n">select</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">foo</span><span class="o">.</span><span class="n">y</span><span class="p">)),</span>
+<span class="gp">... </span>        <span class="n">track_closure_variables</span><span class="o">=</span><span class="kc">False</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">add_criteria</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">where_criteria</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">track_on</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">stmt</span></pre></div>
+</div>
+<p>See <a class="reference internal" href="sqlelement.html#sqlalchemy.sql.expression.lambda_stmt" title="sqlalchemy.sql.expression.lambda_stmt"><code class="xref py py-func docutils literal notranslate"><span class="pre">lambda_stmt()</span></code></a> for a description of the parameters
+accepted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sqlalchemy.sql.expression.StatementLambdaElement.spoil">
+<em class="property"><span class="pre">method</span> </em><a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement"><code class="docutils literal notranslate"><span class="pre">sqlalchemy.sql.expression.StatementLambdaElement.</span></code></a><span class="sig-name descname"><span class="pre">spoil</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqlalchemy.sql.expression.StatementLambdaElement.spoil" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#sqlalchemy.sql.expression.StatementLambdaElement" title="sqlalchemy.sql.expression.StatementLambdaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatementLambdaElement</span></code></a> that will run
+all lambdas unconditionally each time.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+    </div>
+
+</div>
+
+<div id="docs-bottom-navigation" class="docs-navigation-links, withsidebar">
+        Previous:
+        <a href="expression_api.html" title="previous chapter">SQL Statements and Expressions API</a>
+        Next:
+        <a href="sqlelement.html" title="next chapter">Column Elements and Expressions</a>
+
+    <div id="docs-copyright">
+        &copy; <a href="../copyright.html">Copyright</a> 2007-2021, the SQLAlchemy authors and contributors.
+
+
+    <p><b>flambé!</b> the dragon and <b><i>The Alchemist</i></b> image designs created and generously donated by <a href="https://github.com/vmalloc">Rotem Yaari</a>.</p>
+
+        Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 4.3.2.
+    </div>
+</div>
+
+</div>
+
+
+
+        
+        
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '../',
+          VERSION:     '1.4.29',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+
+    <!-- begin iterate through sphinx environment script_files -->
+        <script type="text/javascript" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    <!-- end iterate through sphinx environment script_files -->
+
+    <script type="text/javascript" src="../_static/detectmobile.js"></script>
+    <script type="text/javascript" src="../_static/init.js"></script>
+
+
+    </body>
+</html>
+
+
